@@ -1,0 +1,44 @@
+version: "3.5"
+services:
+  db:
+    image: mysql
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: google-adwards-task
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - core_service_network
+  api:
+    command: npm run start:dev
+    build: ./api
+    ports:
+      - 4000:4000
+    volumes:
+      - ./api:/api
+    env_file: ./api/.env
+    depends_on:
+      - db
+    networks:
+      - core_service_network
+  web:
+    build: ./web
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./web/src:/app/src
+    environment:
+      - API_HOST="http://localhost:4000"
+networks:
+  core_service_network:
+    driver: bridge
+    name: core_service_network
+volumes:
+  mysql_data:
+    name: mysql_data
+  apis_modules:
+    name: apis_modules
